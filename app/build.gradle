@@ -17,11 +17,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions {
+        // See https://github.com/square/okhttp/issues/1346
+        warning 'InvalidPackage'
+    }
 }
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.squareup.okhttp:okhttp:2.3.0'
-    testCompile 'org.robolectric:robolectric:3.0-rc3'
+    testCompile 'org.robolectric:robolectric:3.0'
 }
