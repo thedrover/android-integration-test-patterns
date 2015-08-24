@@ -26,4 +26,9 @@ public abstract class HttpRequestor {
     mResultHandler = resultHandler;
 
   }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 }
