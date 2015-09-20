@@ -72,9 +72,9 @@ public class HttpClientRequestor extends HttpRequestor {
   }
 
   @Override
-  public void makeRequest(String s_url) {
+  public void makeRequest(String url) {
   // TODO add HTTP method
-  makeGetRequest(s_url);
+  makeGetRequest(url);
 
 
   }

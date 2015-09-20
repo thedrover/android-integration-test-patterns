@@ -12,24 +12,24 @@ public class HttpURLConnectionRequestor extends HttpRequestor {
 
   /**
    * Inject for test....general listener is better...
-   * @param s_url
+   * @param url
    */
-  public void makeRequest(String s_url) {
+  public void makeRequest(String url) {
 
 
     // TODO do a successful get URL connection to httpbin.org.
 
-    URL url;
+    URL urlx;
     try {
-      url = new URL(s_url);
+      urlx = new URL(url);
 
 
 
       HttpURLConnection urlConnection;
-      urlConnection = (HttpURLConnection) url.openConnection();
+      urlConnection = (HttpURLConnection) urlx.openConnection();
 
       int responseCode = urlConnection.getResponseCode();
-      if (responseCode == 200) {
+      if (responseCode == HttpURLConnection.HTTP_OK) {
 
         InputStream in = urlConnection.getInputStream();
 

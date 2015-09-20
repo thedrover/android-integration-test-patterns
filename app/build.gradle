@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    buildToolsVersion "23.0.1"
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
@@ -11,7 +11,26 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+
+
+    sourceSets {
+
+
+        // Add common test directory that contains the TestEventListener that is used for both unit and instrumentation tests.
+
+        androidTest {
+            java.srcDirs = ['src/main/java', 'src/androidTest/java', 'src/commonTest/java']
+        }
+
+        test {
+            java.srcDirs = ['src/main/java', 'src/test/java', 'src/commonTest/java']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -27,7 +46,15 @@ android {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.0.0'
+   // compile 'com.android.support:appcompat-v7:23.0.0'
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     testCompile 'org.robolectric:robolectric:3.0'
+    androidTestCompile 'com.android.support.test:runner:0.3'
+    // Set this dependency to use JUnit 4 rules
+    androidTestCompile 'com.android.support.test:rules:0.3'
+    // Set this dependency to build and run Espresso tests
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2'
+
+    //androidTestCompile 'org.robolectric:robolectric:3.0'
 }

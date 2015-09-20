@@ -9,9 +9,9 @@ public abstract class HttpRequestor {
 
   /**
    * Make asynchronous HTTP request.
-   * @param s_url
+   * @param url
    */
-  public abstract void makeRequest(String s_url);
+  public abstract void makeRequest(String url);
 
   /**
    * Decode/process the result of the asynchronous action. App-specific. Consider creating method that can be overridden...

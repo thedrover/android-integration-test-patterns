@@ -11,14 +11,14 @@ import java.io.IOException;
  */
 public class OkHttpRequestor extends HttpRequestor {
   @Override
-  public void makeRequest(String s_url) {
+  public void makeRequest(String url) {
 
   System.out.println("Yah");
     OkHttpClient client = new OkHttpClient();
 
 
     Request request = new Request.Builder()
-        .url(s_url)
+        .url(url)
         .build();
 
     Response response = null;
