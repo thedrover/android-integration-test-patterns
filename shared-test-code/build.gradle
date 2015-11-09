@@ -1,0 +1,85 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "thedrover.sharedtestcode"
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+
+        androidTest {
+            java.srcDirs = ['src/main/java', 'src/androidTest/java', 'src/commonTest/java']
+            // The test resources from the extra directories are not inlcuded in the APK so invoke a copy task to add them to the inermediates directory.
+          //  res.srcDirs = ['src/main/resources', 'src/androidTest/resources', 'src/commonTest/resources']
+            // Need this one!
+            resources.srcDirs = ['src/main/resources', 'src/androidTest/resources', 'src/commonTest/resources']
+        }
+
+        test {
+            java.srcDirs = ['src/main/java', 'src/test/java', 'src/commonTest/java']
+            // Resources for java resources
+            resources.srcDirs = ['src/main/resources', 'src/test/resources', 'src/commonTest/resources']
+
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:23.0.1'
+
+    testCompile 'junit:junit:4.12'
+
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    // Set this dependency to use JUnit 4 rules
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    // Set this dependency to build and run Espresso tests
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.1'
+    androidTestCompile 'com.android.support:support-annotations:23.0.1'
+
+    testCompile 'org.robolectric:robolectric:3.0'
+
+}
+
+task copyAndroidTestResourcesToIntermediates(type: Copy){
+println('Copying...')
+    android.sourceSets.androidTest.res.srcDirs.each {
+        x ->
+        println(x)
+        copy {
+            from x
+            into "${buildDir}/intermediates/classes/test/debug/res"
+        }
+    }
+}
+
+task copyAndroidTestResourcesToIntermediates2(type: Copy){
+
+            copy {
+                from "src/commonTest/resources"
+                into "${buildDir}/intermediates/classes/test/debug/res"
+            }
+    }
+
+
+
+assembleDebug.dependsOn(copyAndroidTestResourcesToIntermediates)
+//assembleDebug.dependsOn(copyAndroidTestResourcesToIntermediates2)
+
