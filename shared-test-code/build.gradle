@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "thedrover.sharedtestcode"
+        applicationId "com.example.sharedtestcode"
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 1

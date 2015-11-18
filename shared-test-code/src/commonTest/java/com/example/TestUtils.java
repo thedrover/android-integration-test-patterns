@@ -1,4 +1,4 @@
-package thedrover.sharedtestcode;
+package com.example;
 
 /**
  * Example of a shared test utility class.

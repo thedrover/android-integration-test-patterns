@@ -1,4 +1,7 @@
-package thedrover.sharedtestcode;
+package com.example.sharedtestcode;
+
+import com.example.SharedTest;
+import com.example.TestUtils;
 
 import junit.framework.Assert;
 

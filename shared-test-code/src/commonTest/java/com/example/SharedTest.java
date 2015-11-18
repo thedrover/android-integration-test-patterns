@@ -1,4 +1,4 @@
-package thedrover.sharedtestcode;
+package com.example;
 
 import android.content.res.AssetManager;
 
