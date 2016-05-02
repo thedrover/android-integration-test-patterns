@@ -105,7 +105,7 @@ public class HttpClientWrapper extends HttpRequestWrapper {
       if (statusCode != HttpStatus.SC_OK) {
 
 
-        mResultHandler.onFailure(statusCode, response1.getStatusLine().getReasonPhrase());
+        mResultHandler.onResult(statusCode, response1.getStatusLine().getReasonPhrase());
 
       } else {
 
@@ -116,7 +116,7 @@ public class HttpClientWrapper extends HttpRequestWrapper {
           instream = new GZIPInputStream(instream);
         }
 
-        mResultHandler.onSuccess(convertStreamToString(instream));
+        mResultHandler.onResult(statusCode, convertStreamToString(instream));
       }
 
       response = instream;
@@ -125,7 +125,7 @@ public class HttpClientWrapper extends HttpRequestWrapper {
 
 
     } catch (Exception e) {
-      mResultHandler.onFailure(e);
+      mResultHandler.onResult(e);
     } finally {
       if (response != null) {
         try {

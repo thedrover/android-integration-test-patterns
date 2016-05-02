@@ -8,6 +8,7 @@ import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -29,43 +30,20 @@ import thedrover.tests.TestUtil;
 @RunWith(Parameterized.class)
 public class HttpInstrumentationTest {
 
-
-  public static final int TIMEOUT_MILLIS = 10000;
-
   @Rule
-  public Timeout timeout = Timeout.seconds(TIMEOUT_MILLIS);
+  public Timeout timeout = Timeout.seconds(TestUtil.TIMEOUT_MILLIS);
 
-
-  // TODO maybe use factory instead of sub-classsing? parameterised junit tests to be clevah...
-  private HttpRequestWrapper mHttpRequestor;
+  private final HttpRequestWrapper mHttpRequestor;
   private TestEventListener result;
-
-
+  
   @Parameterized.Parameters(name = "request wrapper = {0}")
   public static List<String[]> data() {
     return Arrays.asList(TestUtil.getArgs(HttpClientWrapper.class.getName()), TestUtil.getArgs(OkHttpWrapper.class.getName()), TestUtil.getArgs(HttpURLConnectionWrapper.class.getName()));
   }
 
-
-
-
-
   public HttpInstrumentationTest(String requestor) {
-
-    if (HttpClientWrapper.class.getName().equals(requestor)) {
-      mHttpRequestor = new HttpClientWrapper();
-    }
-    else if (OkHttpWrapper.class.getName().equals(requestor)) {
-      mHttpRequestor = new OkHttpWrapper();
-    }
-    else if (HttpURLConnectionWrapper.class.getName().equals(requestor)) {
-      mHttpRequestor = new HttpURLConnectionWrapper();
-    }
-    Assert.assertNotNull(mHttpRequestor);
+    mHttpRequestor = TestUtil.buildHttpRequestWrapper(requestor);
   }
-
-
-
 
   @Test
   public void testSimpleGet() throws ExecutionException, InterruptedException, JSONException {
@@ -88,7 +66,7 @@ public class HttpInstrumentationTest {
     mHttpRequestor.makeRequestOnThread("http://httpbin.org/headers");
 
     TestUtil.assertFutureCompleted(mFuture);
-    result.assertSuccessResult();
+    Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getResponseCode());
     String payload = result.getPayload();
     TestUtil.checkHeaders(payload);
   }
@@ -114,7 +92,7 @@ public class HttpInstrumentationTest {
     mHttpRequestor.makeRequestOnThread("http://httpbin.org/headersnot");
 
     TestUtil.assertFutureCompleted(mFuture);
-    result.assertFailureResult();
+    Assert.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, result.getResponseCode());
 
     String payload = result.getPayload();
     Assert.assertNotNull(payload);

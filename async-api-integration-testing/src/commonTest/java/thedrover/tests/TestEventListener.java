@@ -1,6 +1,5 @@
 package thedrover.tests;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
 
@@ -58,17 +57,6 @@ public class TestEventListener extends ResultHandler implements Callable<Boolean
     return "thedrover.tests.TestEventListener - Async event wait time = " + waitDurationMs;
   }
 
-  /**
-   *
-   */
-  public void assertSuccessResult() {
-    Assert.assertTrue(mSuccess);
-  }
-
-  public void assertFailureResult() {
-    // TODO add failure messages etc to these...
-    Assert.assertFalse(mSuccess);
-  }
 
 
 }

@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -29,13 +30,10 @@ import thedrover.androidapiintegration.thedrover.testsupport.http.OkHttpWrapper;
 public class HttpRobolectricIntegrationTest {
 
   @Rule
-  public Timeout timeout = Timeout.seconds(50);
+  public Timeout timeout = Timeout.seconds(TestUtil.TIMEOUT_MILLIS);
 
-
-  // TODO maybe use factory instead of sub-classsing? parameterised junit tests to be clevah...
-  protected HttpRequestWrapper mHttpRequestor;
+  private final HttpRequestWrapper mHttRequestWrapper;
   private TestEventListener result;
-
 
   @ParameterizedRobolectricTestRunner.Parameters(name = "request wrapper = {0}")
   public static List<String[]> data() {
@@ -45,14 +43,9 @@ public class HttpRobolectricIntegrationTest {
 
   public HttpRobolectricIntegrationTest(String requestor) {
 
-    if (HttpClientWrapper.class.getName().equals(requestor)) {
-      mHttpRequestor = new HttpClientWrapper();
-    } else if (OkHttpWrapper.class.getName().equals(requestor)) {
-      mHttpRequestor = new OkHttpWrapper();
-    } else if (HttpURLConnectionWrapper.class.getName().equals(requestor)) {
-      mHttpRequestor = new HttpURLConnectionWrapper();
-    }
-    Assert.assertNotNull(mHttpRequestor);
+    HttpRequestWrapper httpRequestWrapper = TestUtil.buildHttpRequestWrapper(requestor);
+
+    this.mHttRequestWrapper = httpRequestWrapper;
   }
 
 
@@ -63,7 +56,7 @@ public class HttpRobolectricIntegrationTest {
     // COMPARE ACTUAL RESULT WITH EXPECTED
     // TODO pass timeout in ctor.
     result = new TestEventListener();
-    mHttpRequestor.setResultHandler(result);
+    mHttRequestWrapper.setResultHandler(result);
 
     //makeRequests posts a result that the TestEventListener receivers.
 
@@ -74,10 +67,10 @@ public class HttpRobolectricIntegrationTest {
     Future<Boolean> mFuture = executorService.submit(result);
 
     // MUT
-    mHttpRequestor.makeRequestOnThread("http://httpbin.org/headers");
+    mHttRequestWrapper.makeRequestOnThread("http://httpbin.org/headers");
 
     TestUtil.assertFutureCompleted(mFuture);
-    result.assertSuccessResult();
+    Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getResponseCode());
     String payload = result.getPayload();
     TestUtil.checkHeaders(payload);
 
@@ -92,7 +85,7 @@ public class HttpRobolectricIntegrationTest {
     // COMPARE ACTUAL RESULT WITH EXPECTED
     // TODO pass timeout in ctor.
     result = new TestEventListener();
-    mHttpRequestor.setResultHandler(result);
+    mHttRequestWrapper.setResultHandler(result);
 
     //makeRequests posts a result that the TestEventListener receivers.
 
@@ -103,10 +96,10 @@ public class HttpRobolectricIntegrationTest {
     Future<Boolean> mFuture = executorService.submit(result);
 
     // MUT
-    mHttpRequestor.makeRequestOnThread("http://httpbin.org/headersnot");
+    mHttRequestWrapper.makeRequestOnThread("http://httpbin.org/headersnot");
 
     TestUtil.assertFutureCompleted(mFuture);
-    result.assertFailureResult();
+    Assert.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, result.getResponseCode());
 
     String payload = result.getPayload();
     Assert.assertNotNull(payload);

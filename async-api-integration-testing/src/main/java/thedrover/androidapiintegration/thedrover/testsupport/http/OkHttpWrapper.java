@@ -1,6 +1,5 @@
 package thedrover.androidapiintegration.thedrover.testsupport.http;
 
-
 import java.io.IOException;
 
 import okhttp3.OkHttpClient;
@@ -25,17 +24,14 @@ public class OkHttpWrapper extends HttpRequestWrapper {
       if (response.isSuccessful()) {
         String result = response.body().string();
 
-        mResultHandler.onSuccess(result);
+        mResultHandler.onResult(response.code(), result);
       } else {
-        mResultHandler.onFailure(response.code(), response.message());
+        mResultHandler.onResult(response.code(), response.message());
       }
     } catch (IOException e) {
-
-      mResultHandler.onFailure(e);
+      mResultHandler.onResult(e);
     }
-
   }
 }
 
-// USe built-in async callback examples.
 

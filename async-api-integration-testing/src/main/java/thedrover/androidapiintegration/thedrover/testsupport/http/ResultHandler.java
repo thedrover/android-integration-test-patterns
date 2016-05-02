@@ -8,25 +8,17 @@ package thedrover.androidapiintegration.thedrover.testsupport.http;
 public class ResultHandler {
 
   protected boolean mIsComplete = false;
-  protected boolean mSuccess = false;
+  private int mResponseCode;
   private String mPayload;
 
-  public void onSuccess(String result) {
-
-    // Decode to JSON, Perist to DB etc
+  public void onResult(int responseCode, String payload) {
     mIsComplete = true;
-    mSuccess = true;
-    mPayload = result;
-
-  }
-
-  public void onFailure(int responseCode, String payload) {
-    mIsComplete = true;
+    mResponseCode = responseCode;
     mPayload = payload;
   }
 
 
-  public void onFailure(Exception e) {
+  public void onResult(Exception e) {
     mIsComplete = true;
     e.printStackTrace();
 
@@ -36,5 +28,12 @@ public class ResultHandler {
     return mPayload;
   }
 
+
+  /**
+   * @return the HTTP response code
+   */
+  public int getResponseCode() {
+    return mResponseCode;
+  }
 
 }

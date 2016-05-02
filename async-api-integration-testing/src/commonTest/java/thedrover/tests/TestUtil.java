@@ -7,10 +7,17 @@ import org.junit.Assert;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import thedrover.androidapiintegration.thedrover.testsupport.http.HttpClientWrapper;
+import thedrover.androidapiintegration.thedrover.testsupport.http.HttpRequestWrapper;
+import thedrover.androidapiintegration.thedrover.testsupport.http.HttpURLConnectionWrapper;
+import thedrover.androidapiintegration.thedrover.testsupport.http.OkHttpWrapper;
+
 /**
  * Created by dougwright on 2/05/2016.
  */
 public class TestUtil {
+
+  public static final int TIMEOUT_MILLIS = 10000;
 
   public static void checkHeaders(String payload) throws JSONException {
     JSONObject json = new JSONObject(payload);
@@ -33,5 +40,18 @@ public class TestUtil {
     // See https://github.com/robolectric/robolectric/issues/871 for why the
     // string values are used.
     return new String[]{requestWrapperId};
+  }
+
+  public static HttpRequestWrapper buildHttpRequestWrapper(String requestor) {
+    HttpRequestWrapper httpRequestWrapper = null;
+    if (HttpClientWrapper.class.getName().equals(requestor)) {
+      httpRequestWrapper = new HttpClientWrapper();
+    } else if (OkHttpWrapper.class.getName().equals(requestor)) {
+      httpRequestWrapper = new OkHttpWrapper();
+    } else if (HttpURLConnectionWrapper.class.getName().equals(requestor)) {
+      httpRequestWrapper = new HttpURLConnectionWrapper();
+    }
+    Assert.assertNotNull(httpRequestWrapper);
+    return httpRequestWrapper;
   }
 }

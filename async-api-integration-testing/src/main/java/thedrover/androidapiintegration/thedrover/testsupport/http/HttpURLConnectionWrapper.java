@@ -9,19 +9,8 @@ import java.net.URL;
  */
 public class HttpURLConnectionWrapper extends HttpRequestWrapper {
 
-  /**
-   * Inject for test....general listener is better...
-   *
-   * @param url
-   */
   @Override
   protected void makeRequest(String url) {
-
-
-    // TODO this is synchronous.
-
-
-    // TODO do a successful get URL connection to httpbin.org.
 
     URL urlx;
     try {
@@ -33,16 +22,18 @@ public class HttpURLConnectionWrapper extends HttpRequestWrapper {
 
       int responseCode = urlConnection.getResponseCode();
       // TODO 206 etc...
-      if (responseCode == HttpURLConnection.HTTP_OK) {
+
+      int firstDigit = responseCode / 100;
+      if (firstDigit == 2) {
 
         InputStream in = urlConnection.getInputStream();
 
-        mResultHandler.onSuccess(HttpClientWrapper.convertStreamToString(in));
+        mResultHandler.onResult(responseCode, HttpClientWrapper.convertStreamToString(in));
       } else {
-        mResultHandler.onFailure(responseCode, urlConnection.getResponseMessage());
+        mResultHandler.onResult(responseCode, urlConnection.getResponseMessage());
       }
     } catch (Exception e) {
-      mResultHandler.onFailure(e);
+      mResultHandler.onResult(e);
     }
 
   }
