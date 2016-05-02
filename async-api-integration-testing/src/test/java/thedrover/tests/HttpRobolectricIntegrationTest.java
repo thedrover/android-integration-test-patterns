@@ -12,15 +12,19 @@ import org.robolectric.annotation.Config;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpClientWrapper;
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpRequestWrapper;
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpURLConnectionWrapper;
 import thedrover.androidapiintegration.thedrover.testsupport.http.OkHttpWrapper;
+import thedrover.androidapiintegration.thedrover.testsupport.http.HttpResult;
 
 /**
  *
@@ -33,75 +37,64 @@ public class HttpRobolectricIntegrationTest {
   public Timeout timeout = Timeout.seconds(TestUtil.TIMEOUT_MILLIS);
 
   private final HttpRequestWrapper mHttRequestWrapper;
-  private TestEventListener result;
 
   @ParameterizedRobolectricTestRunner.Parameters(name = "request wrapper = {0}")
   public static List<String[]> data() {
     return Arrays.asList(TestUtil.getArgs(HttpClientWrapper.class.getName()), TestUtil.getArgs(OkHttpWrapper.class.getName()), TestUtil.getArgs(HttpURLConnectionWrapper.class.getName()));
   }
 
-
   public HttpRobolectricIntegrationTest(String requestor) {
-
-    HttpRequestWrapper httpRequestWrapper = TestUtil.buildHttpRequestWrapper(requestor);
-
-    this.mHttRequestWrapper = httpRequestWrapper;
+    mHttRequestWrapper = TestUtil.buildHttpRequestWrapper(requestor);
   }
 
-
   @Test
-  public void testSimpleGet() throws ExecutionException, InterruptedException, JSONException {
+  public void testSimpleGet() throws ExecutionException, InterruptedException, JSONException, TimeoutException {
+    HttpResult resultHandler = new HttpResult();
 
-
-    // COMPARE ACTUAL RESULT WITH EXPECTED
-    // TODO pass timeout in ctor.
-    result = new TestEventListener();
-    mHttRequestWrapper.setResultHandler(result);
-
-    //makeRequests posts a result that the TestEventListener receivers.
+    //makeRequests posts a result that the HttpResultWatcherTask receivers.
 
 
     // Set up a future that will be interrogated until the asynchronous event is
     // received or the test times out.
+    Callable<HttpResult> result = new HttpResultWatcherTask(resultHandler);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    Future<Boolean> mFuture = executorService.submit(result);
+    Future<HttpResult> future = executorService.submit(result);
 
     // MUT
-    mHttRequestWrapper.makeRequestOnThread("http://httpbin.org/headers");
+    mHttRequestWrapper.makeRequestOnThread("http://httpbin.org/headers", resultHandler);
 
-    TestUtil.assertFutureCompleted(mFuture);
-    Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getResponseCode());
-    String payload = result.getPayload();
+   // TestUtil.assertFutureCompleted(mFuture);
+    HttpResult r = future.get(TestUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+    Assert.assertEquals(HttpURLConnection.HTTP_OK, r.getResponseCode());
+    String payload = r.getPayload();
     TestUtil.checkHeaders(payload);
-
-
   }
 
 
   @Test
-  public void testSimpleGetFailure() throws ExecutionException, InterruptedException {
+  public void testSimpleGetFailure() throws ExecutionException, InterruptedException, TimeoutException {
+    HttpResult resultHandler = new HttpResult();
 
 
-    // COMPARE ACTUAL RESULT WITH EXPECTED
-    // TODO pass timeout in ctor.
-    result = new TestEventListener();
-    mHttRequestWrapper.setResultHandler(result);
 
-    //makeRequests posts a result that the TestEventListener receivers.
+
+
+    //makeRequests posts a result that the HttpResultWatcherTask receivers.
 
 
     // Set up a future that will be interrogated until the asynchronous event is
     // received or the test times out.
+    Callable<HttpResult> result = new HttpResultWatcherTask(resultHandler);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    Future<Boolean> mFuture = executorService.submit(result);
+    Future<HttpResult> mFuture = executorService.submit(result);
 
     // MUT
-    mHttRequestWrapper.makeRequestOnThread("http://httpbin.org/headersnot");
+    mHttRequestWrapper.makeRequestOnThread("http://httpbin.org/headersnot", resultHandler);
 
-    TestUtil.assertFutureCompleted(mFuture);
-    Assert.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, result.getResponseCode());
+    HttpResult r = mFuture.get(TestUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+    Assert.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, r.getResponseCode());
 
-    String payload = result.getPayload();
+    String payload = r.getPayload();
     Assert.assertNotNull(payload);
     Assert.assertEquals("payload = " + payload, "NOT FOUND", payload);
   }

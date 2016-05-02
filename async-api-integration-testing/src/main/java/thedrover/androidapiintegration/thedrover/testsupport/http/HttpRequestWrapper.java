@@ -9,8 +9,7 @@ import java.util.concurrent.Executors;
  */
 public abstract class HttpRequestWrapper {
 
-
-  protected ResultHandler mResultHandler;
+  protected HttpResult mResultHandler;
   protected ExecutorService mGetConnectionThreadPool;
 
   public HttpRequestWrapper() {
@@ -19,17 +18,18 @@ public abstract class HttpRequestWrapper {
 
   /**
    * Make asynchronous HTTP request.
+   *  @param url
    *
-   * @param url
    */
   protected abstract void makeRequest(String url);
 
   /**
    *
    * @param url
+   * @param resultHandler
    */
-  public void makeRequestOnThread(final String url) {
-    // TODO add HTTP method
+  public void makeRequestOnThread(final String url, HttpResult resultHandler) {
+    mResultHandler = resultHandler;
     mGetConnectionThreadPool.submit(new Runnable() {
 
       @Override
@@ -37,11 +37,6 @@ public abstract class HttpRequestWrapper {
         makeRequest(url);
       }
     });
-  }
-
-  public void setResultHandler(ResultHandler resultHandler) {
-    mResultHandler = resultHandler;
-
   }
 
   @Override

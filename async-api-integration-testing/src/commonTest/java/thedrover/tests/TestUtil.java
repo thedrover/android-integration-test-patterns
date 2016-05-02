@@ -4,9 +4,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpClientWrapper;
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpRequestWrapper;
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpURLConnectionWrapper;
@@ -25,10 +22,6 @@ public class TestUtil {
     Assert.assertEquals("httpbin.org", host);
   }
 
-  public static void assertFutureCompleted(Future<Boolean> future) throws InterruptedException, ExecutionException {
-    // TODO better message
-    Assert.assertTrue("Future did not return a successful connection result: ", future.get());
-  }
 
   /**
    * Convenience method to build the parameters with less clutter.

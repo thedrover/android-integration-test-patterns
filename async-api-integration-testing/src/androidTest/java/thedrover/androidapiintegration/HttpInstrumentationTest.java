@@ -11,16 +11,20 @@ import org.junit.runners.Parameterized;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpClientWrapper;
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpRequestWrapper;
 import thedrover.androidapiintegration.thedrover.testsupport.http.HttpURLConnectionWrapper;
 import thedrover.androidapiintegration.thedrover.testsupport.http.OkHttpWrapper;
-import thedrover.tests.TestEventListener;
+import thedrover.androidapiintegration.thedrover.testsupport.http.HttpResult;
+import thedrover.tests.HttpResultWatcherTask;
 import thedrover.tests.TestUtil;
 
 /**
@@ -34,7 +38,6 @@ public class HttpInstrumentationTest {
   public Timeout timeout = Timeout.seconds(TestUtil.TIMEOUT_MILLIS);
 
   private final HttpRequestWrapper mHttpRequestor;
-  private TestEventListener result;
   
   @Parameterized.Parameters(name = "request wrapper = {0}")
   public static List<String[]> data() {
@@ -46,55 +49,57 @@ public class HttpInstrumentationTest {
   }
 
   @Test
-  public void testSimpleGet() throws ExecutionException, InterruptedException, JSONException {
+  public void testSimpleGet() throws ExecutionException, InterruptedException, JSONException, TimeoutException {
 
 
     // COMPARE ACTUAL RESULT WITH EXPECTED
+    HttpResult resultHandler = new HttpResult();
+    Callable<HttpResult> result = new HttpResultWatcherTask(resultHandler);
 
-    result = new TestEventListener();
-    mHttpRequestor.setResultHandler(result);
 
-    //makeRequests posts a result that the TestEventListener receivers.
+    //makeRequests posts a result that the HttpResultWatcherTask receivers.
 
 
     // Set up a future that will be interrogated until the asynchronous event is
     // received or the test times out.
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    Future<Boolean> mFuture = executorService.submit(result);
+    Future<HttpResult> mFuture = executorService.submit(result);
 
     // MUT
-    mHttpRequestor.makeRequestOnThread("http://httpbin.org/headers");
+    mHttpRequestor.makeRequestOnThread("http://httpbin.org/headers", resultHandler);
 
-    TestUtil.assertFutureCompleted(mFuture);
-    Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getResponseCode());
-    String payload = result.getPayload();
+    HttpResult r = mFuture.get(TestUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+    Assert.assertEquals(HttpURLConnection.HTTP_OK, r.getResponseCode());
+
+    String payload = r.getPayload();
     TestUtil.checkHeaders(payload);
   }
 
   @Test
-  public void testSimpleGetFailure() throws ExecutionException, InterruptedException {
+  public void testSimpleGetFailure() throws ExecutionException, InterruptedException, TimeoutException {
 
 
 //    // COMPARE ACTUAL RESULT WITH EXPECTED
-//
-    result = new TestEventListener();
-    mHttpRequestor.setResultHandler(result);
+    HttpResult resultHandler = new HttpResult();
+    Callable<HttpResult> result = new HttpResultWatcherTask(resultHandler);
 
-    //makeRequests posts a result that the TestEventListener receivers.
+
+    //makeRequests posts a result that the HttpResultWatcherTask receivers.
 
 
     // Set up a future that will be interrogated until the asynchronous event is
     // received or the test times out.
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    Future<Boolean> mFuture = executorService.submit(result);
+    Future<HttpResult> futureResult = executorService.submit(result);
+
 
     // MUT
-    mHttpRequestor.makeRequestOnThread("http://httpbin.org/headersnot");
+    mHttpRequestor.makeRequestOnThread("http://httpbin.org/headersnot", resultHandler);
 
-    TestUtil.assertFutureCompleted(mFuture);
-    Assert.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, result.getResponseCode());
+    HttpResult r = futureResult.get(TestUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+    Assert.assertEquals(HttpURLConnection.HTTP_NOT_FOUND, r.getResponseCode());
 
-    String payload = result.getPayload();
+    String payload = r.getPayload();
     Assert.assertNotNull(payload);
     Assert.assertEquals("payload = " + payload, "NOT FOUND", payload);
 
