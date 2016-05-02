@@ -1,4 +1,4 @@
-package thedrover.androidapiintegration;
+package thedrover.androidapiintegration.thedrover.testsupport.http;
 
 /**
  * Represents the class that processes the results of the asynchronous operation. This is a test-instrumented version, that might an event
@@ -7,15 +7,34 @@ package thedrover.androidapiintegration;
  */
 public class ResultHandler {
 
+  protected boolean mIsComplete = false;
   protected boolean mSuccess = false;
+  private String mPayload;
 
-  public void onSuccess() {
+  public void onSuccess(String result) {
+
+    // Decode to JSON, Perist to DB etc
+    mIsComplete = true;
     mSuccess = true;
+    mPayload = result;
 
   }
 
-  public void onFailure(int responseCode)
-  {
-  mSuccess = false;
+  public void onFailure(int responseCode, String payload) {
+    mIsComplete = true;
+    mPayload = payload;
   }
+
+
+  public void onFailure(Exception e) {
+    mIsComplete = true;
+    e.printStackTrace();
+
+  }
+
+  public String getPayload() {
+    return mPayload;
+  }
+
+
 }

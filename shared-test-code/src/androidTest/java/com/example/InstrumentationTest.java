@@ -44,7 +44,7 @@ public class InstrumentationTest extends SharedTest {
    */
   @Test
   public void testAndroidTestResource() throws IOException {
-    checkFile("com/example/androidTest/androidTestResource.txt", "Android test");
+    checkFile("com/example/androidtest/androidTestResource.txt", "Android test");
   }
 
   /**

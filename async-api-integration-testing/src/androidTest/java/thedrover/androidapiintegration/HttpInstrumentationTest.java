@@ -1,5 +1,6 @@
 package thedrover.androidapiintegration;
 
+import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -8,69 +9,66 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import thedrover.androidapiintegration.thedrover.testsupport.http.HttpClientWrapper;
+import thedrover.androidapiintegration.thedrover.testsupport.http.HttpRequestWrapper;
+import thedrover.androidapiintegration.thedrover.testsupport.http.HttpURLConnectionWrapper;
+import thedrover.androidapiintegration.thedrover.testsupport.http.OkHttpWrapper;
 import thedrover.tests.TestEventListener;
+import thedrover.tests.TestUtil;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
  */
 
 @RunWith(Parameterized.class)
-public class ApplicationTest  {
+public class HttpInstrumentationTest {
 
 
-  protected static final int REQUESTOR_HTTP_CLIENT = 0;
-  protected static final int REQUESTOR_OK = 1;
-  protected static final int REQUESTOR_URL_CONNECTION = 2;
   public static final int TIMEOUT_MILLIS = 10000;
 
   @Rule
-  public Timeout timeout = Timeout.seconds(3);
+  public Timeout timeout = Timeout.seconds(TIMEOUT_MILLIS);
 
 
   // TODO maybe use factory instead of sub-classsing? parameterised junit tests to be clevah...
-  protected HttpRequestor mHttpRequestor;
+  private HttpRequestWrapper mHttpRequestor;
   private TestEventListener result;
 
 
-  @Parameterized.Parameters
-  public static Iterable<Integer[]> data() {
-    return Arrays.asList(getArgs(REQUESTOR_HTTP_CLIENT), getArgs(REQUESTOR_OK), getArgs(REQUESTOR_URL_CONNECTION));
+  @Parameterized.Parameters(name = "request wrapper = {0}")
+  public static List<String[]> data() {
+    return Arrays.asList(TestUtil.getArgs(HttpClientWrapper.class.getName()), TestUtil.getArgs(OkHttpWrapper.class.getName()), TestUtil.getArgs(HttpURLConnectionWrapper.class.getName()));
   }
 
-  public ApplicationTest(Integer requestor) {
-    switch (requestor)
-    {
-      case REQUESTOR_HTTP_CLIENT:
-        mHttpRequestor = new HttpClientRequestor();
-      case REQUESTOR_OK:
-        mHttpRequestor = new OkHttpRequestor();
-      case REQUESTOR_URL_CONNECTION:
-        mHttpRequestor = new HttpURLConnectionRequestor();
-      default:
+
+
+
+
+  public HttpInstrumentationTest(String requestor) {
+
+    if (HttpClientWrapper.class.getName().equals(requestor)) {
+      mHttpRequestor = new HttpClientWrapper();
+    }
+    else if (OkHttpWrapper.class.getName().equals(requestor)) {
+      mHttpRequestor = new OkHttpWrapper();
+    }
+    else if (HttpURLConnectionWrapper.class.getName().equals(requestor)) {
+      mHttpRequestor = new HttpURLConnectionWrapper();
     }
     Assert.assertNotNull(mHttpRequestor);
   }
 
-  /**
-   * Convenience method to build the parameters with less clutter.
-   *
-   * @param initialDB the DB script to create the DB to upgrade.
-   * @return class constructor arguments for parameterized JUnit test.
-   */
-  private static Integer[] getArgs(int initialDB) {
-    // See https://github.com/robolectric/robolectric/issues/871 for why the
-    // string values are used.
-    return new Integer[]{initialDB};
-  }
+
 
 
   @Test
-  public void testSimpleGet() throws ExecutionException, InterruptedException {
+  public void testSimpleGet() throws ExecutionException, InterruptedException, JSONException {
 
 
     // COMPARE ACTUAL RESULT WITH EXPECTED
@@ -87,15 +85,12 @@ public class ApplicationTest  {
     Future<Boolean> mFuture = executorService.submit(result);
 
     // MUT
-    mHttpRequestor.makeRequest("http://httpbin.org/headers");
+    mHttpRequestor.makeRequestOnThread("http://httpbin.org/headers");
 
-    assertFutureCompleted(mFuture);
+    TestUtil.assertFutureCompleted(mFuture);
     result.assertSuccessResult();
-  }
-
-  private void assertFutureCompleted(Future<Boolean> future) throws InterruptedException, ExecutionException {
-    // TODO better message
-    Assert.assertTrue("Future did not return a successful connection result: ", future.get());
+    String payload = result.getPayload();
+    TestUtil.checkHeaders(payload);
   }
 
   @Test
@@ -116,10 +111,16 @@ public class ApplicationTest  {
     Future<Boolean> mFuture = executorService.submit(result);
 
     // MUT
-    mHttpRequestor.makeRequest("http://httpbin.org/headersnot");
+    mHttpRequestor.makeRequestOnThread("http://httpbin.org/headersnot");
 
-    assertFutureCompleted(mFuture);
+    TestUtil.assertFutureCompleted(mFuture);
     result.assertFailureResult();
+
+    String payload = result.getPayload();
+    Assert.assertNotNull(payload);
+    Assert.assertEquals("payload = " + payload, "NOT FOUND", payload);
+
+
   }
 
 }

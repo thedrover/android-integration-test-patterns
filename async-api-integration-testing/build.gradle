@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
@@ -45,16 +45,16 @@ android {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
+    testCompile "junit:junit:$junitVersion"
    // compile 'com.android.support:appcompat-v7:23.0.0'
-    compile 'com.squareup.okhttp:okhttp:2.3.0'
-    testCompile 'org.robolectric:robolectric:3.0'
-    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    testCompile "org.robolectric:robolectric:$robolectricVersion"
+    androidTestCompile "com.android.support.test:runner:$androidTestRunnerVersion"
     // Set this dependency to use JUnit 4 rules
-    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile "com.android.support.test:rules:$androidTestRunnerVersion"
     // Set this dependency to build and run Espresso tests
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
-    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2'
+  //  androidTestCompile "com.android.support.test.espresso:espresso-core:$espressoTestVersion"
+   // androidTestCompile "com.android.support.test.espresso:espresso-intents:$espressoTestVersion"
 
     //androidTestCompile 'org.robolectric:robolectric:3.0'
 }

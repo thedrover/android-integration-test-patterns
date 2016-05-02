@@ -2,13 +2,11 @@ package thedrover.tests;
 
 import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.Timeout;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
-import thedrover.androidapiintegration.ResultHandler;
+import thedrover.androidapiintegration.thedrover.testsupport.http.ResultHandler;
 
 /**
  * Event listener that can be set up as a future that will be interrogated until
@@ -36,23 +34,12 @@ public class TestEventListener extends ResultHandler implements Callable<Boolean
     mMaxCheckCount = TIMEOUT_MILLIS * 1000 / CHECK_INTERVAL_MILLIS;
   }
 
-  /**
-   *
-   * @param testClass the test class
-   * @return the test timeout in milliseconds, or 0 if no timeout is set
-   * @throws NoSuchMethodException
-   */
-//  static long getTestTimeout(Class<?> testClass) throws NoSuchMethodException {
-//    String testName = Thread.currentThread().getStackTrace()[2].getMethodName();
-//    Method testMethod = testClass.getMethod(testName);
-//    long timeoutMillis = testMethod.getAnnotation(Test.class).timeout();
-//    return timeoutMillis;
-//  }
+
 
   @Override
   public Boolean call() throws Exception {
     int i = 0;
-    while (!mSuccess) {
+    while (!mIsComplete) {
       synchronized (this) {
         wait(CHECK_INTERVAL_MILLIS);
         i++;
@@ -61,7 +48,7 @@ public class TestEventListener extends ResultHandler implements Callable<Boolean
         }
       }
     }
-    return mSuccess;
+    return mIsComplete;
   }
 
 
@@ -79,6 +66,9 @@ public class TestEventListener extends ResultHandler implements Callable<Boolean
   }
 
   public void assertFailureResult() {
+    // TODO add failure messages etc to these...
     Assert.assertFalse(mSuccess);
   }
+
+
 }

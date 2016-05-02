@@ -37,17 +37,17 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.3.0'
 
     // Unit test dependencies
-    testCompile 'junit:junit:4.12'
+    testCompile "junit:junit:$junitVersion"
     testCompile 'org.robolectric:robolectric:3.0'
 
     // Integration test dependencies
-    androidTestCompile 'com.android.support.test:runner:0.4.1'
-    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile "com.android.support.test:runner:$androidTestRunnerVersion"
+    androidTestCompile "com.android.support.test:rules:$androidTestRunnerVersion"
     // Resolve version conflict between test dependency and compile dependency
-    androidTestCompile 'com.android.support:support-annotations:23.1.1'
+    androidTestCompile 'com.android.support:support-annotations:23.3.0'
 
 }
 

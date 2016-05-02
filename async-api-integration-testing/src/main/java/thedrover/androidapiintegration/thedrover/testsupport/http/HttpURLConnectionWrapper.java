@@ -1,20 +1,24 @@
-package thedrover.androidapiintegration;
+package thedrover.androidapiintegration.thedrover.testsupport.http;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
  * Created by dougwright on 3/04/2015.
  */
-public class HttpURLConnectionRequestor extends HttpRequestor {
+public class HttpURLConnectionWrapper extends HttpRequestWrapper {
 
   /**
    * Inject for test....general listener is better...
+   *
    * @param url
    */
-  public void makeRequest(String url) {
+  @Override
+  protected void makeRequest(String url) {
+
+
+    // TODO this is synchronous.
 
 
     // TODO do a successful get URL connection to httpbin.org.
@@ -24,33 +28,21 @@ public class HttpURLConnectionRequestor extends HttpRequestor {
       urlx = new URL(url);
 
 
-
       HttpURLConnection urlConnection;
       urlConnection = (HttpURLConnection) urlx.openConnection();
 
       int responseCode = urlConnection.getResponseCode();
+      // TODO 206 etc...
       if (responseCode == HttpURLConnection.HTTP_OK) {
 
         InputStream in = urlConnection.getInputStream();
 
-        InputStreamReader isw = new InputStreamReader(in);
-
-        int data = isw.read();
-        while (data != -1) {
-          char current = (char) data;
-          data = isw.read();
-          System.out.print(current);
-        }
-
-        // TODO could decode JSON etc...herer
-        Object decode = decodeResponse();
-        mResultHandler.onSuccess();
+        mResultHandler.onSuccess(HttpClientWrapper.convertStreamToString(in));
       } else {
-        mResultHandler.onFailure(responseCode);
+        mResultHandler.onFailure(responseCode, urlConnection.getResponseMessage());
       }
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      mResultHandler.onFailure(e);
     }
 
   }
