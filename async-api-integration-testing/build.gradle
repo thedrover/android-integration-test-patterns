@@ -47,6 +47,5 @@ dependencies {
     testCompile "org.robolectric:robolectric:$robolectricVersion"
 
     androidTestCompile "com.android.support.test:runner:$androidTestRunnerVersion"
-    // Set this dependency to use JUnit 4 rules
-    androidTestCompile "com.android.support.test:rules:$androidTestRunnerVersion"
+
 }

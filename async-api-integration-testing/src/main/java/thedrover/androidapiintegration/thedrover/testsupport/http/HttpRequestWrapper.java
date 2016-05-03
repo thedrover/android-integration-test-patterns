@@ -10,10 +10,10 @@ import java.util.concurrent.Executors;
 public abstract class HttpRequestWrapper {
 
   protected HttpResult mResultHandler;
-  protected ExecutorService mGetConnectionThreadPool;
+  private ExecutorService mGetConnectionThreadPool;
 
   public HttpRequestWrapper() {
-    mGetConnectionThreadPool = Executors.newFixedThreadPool(2);
+    mGetConnectionThreadPool = Executors.newSingleThreadExecutor();
   }
 
   /**
