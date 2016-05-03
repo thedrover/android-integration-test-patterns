@@ -7,6 +7,7 @@ import com.example.TestUtils;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -33,9 +34,11 @@ public class RoboTest extends SharedTest {
   /**
    * Load a resource from the application assets and verify the contents are as expected.
    */
+  @Ignore
   @Test
   public void testLoadAsset() throws IOException {
     // using the application context
+    Assert.assertNotNull(RuntimeEnvironment.application);
     AssetManager assetManager = RuntimeEnvironment.application.getAssets();
     Assert.assertNotNull(assetManager);
     checkAsset(assetManager);

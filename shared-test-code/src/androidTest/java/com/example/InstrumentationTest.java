@@ -7,6 +7,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +43,7 @@ public class InstrumentationTest extends SharedTest {
   /**
    * Load a test resource in the Android instrumentatio test directory tree and verify the contents are as expected.
    */
+  @Ignore
   @Test
   public void testAndroidTestResource() throws IOException {
     checkFile("com/example/androidtest/androidTestResource.txt", "Android test");
