@@ -1,7 +1,5 @@
 language: android
 
-jdk:
- - openjdk8
 
 android:
   components:
@@ -27,6 +25,8 @@ android:
     # - sys-img-armeabi-v7a-android-23
     - sys-img-x86-android-24
 
+jdk:
+  - openjdk8
 
 env:
   global:
