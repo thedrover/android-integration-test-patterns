@@ -41,7 +41,7 @@ dependencies {
 
     // Unit test dependencies
     testCompile "junit:junit:$junitVersion"
-    testCompile 'org.robolectric:robolectric:3.0'
+    testCompile "org.robolectric:robolectric:$robolectricVersion"
 
     // Integration test dependencies
     androidTestCompile "com.android.support.test:runner:$androidTestRunnerVersion"
