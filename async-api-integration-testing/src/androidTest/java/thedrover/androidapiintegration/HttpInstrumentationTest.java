@@ -44,19 +44,15 @@ public class HttpInstrumentationTest {
     HttpResult resultHandler = new HttpResult();
     Callable<HttpResult> result = new HttpResultWatcherTask(resultHandler);
 
-
-    //makeRequests posts a result that the HttpResultWatcherTask receivers.
-
-
     // Set up a future that will be interrogated until the asynchronous event is
     // received or the test times out.
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    Future<HttpResult> mFuture = executorService.submit(result);
+    Future<HttpResult> future = executorService.submit(result);
 
     // MUT
     mHttpRequestor.makeRequestOnThread("http://httpbin.org/headers", resultHandler);
 
-    HttpResult r = mFuture.get(TestUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+    HttpResult r = future.get(TestUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     Assert.assertEquals(HttpURLConnection.HTTP_OK, r.getResponseCode());
 
     String payload = r.getPayload();
@@ -69,14 +65,8 @@ public class HttpInstrumentationTest {
   @Test
   public void testSimpleGetFailure() throws ExecutionException, InterruptedException, TimeoutException {
 
-
-//    // COMPARE ACTUAL RESULT WITH EXPECTED
     HttpResult resultHandler = new HttpResult();
     Callable<HttpResult> result = new HttpResultWatcherTask(resultHandler);
-
-
-    //makeRequests posts a result that the HttpResultWatcherTask receivers.
-
 
     // Set up a future that will be interrogated until the asynchronous event is
     // received or the test times out.
@@ -93,8 +83,6 @@ public class HttpInstrumentationTest {
     String payload = r.getPayload();
     Assert.assertNotNull(payload);
     Assert.assertEquals("payload = " + payload, "NOT FOUND", payload);
-
-
   }
 
 }
