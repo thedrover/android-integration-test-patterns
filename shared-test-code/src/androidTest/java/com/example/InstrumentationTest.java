@@ -26,7 +26,7 @@ public class InstrumentationTest extends SharedTest {
   @Test
   public void testAdd() {
     Assert.assertEquals(5, TestUtils.add(3, 2));
-    Assert.assertEquals(7, TestUtils.subtract(10, 3))
+    Assert.assertEquals(7, TestUtils.subtract(10, 3));
   }
 
   /**
