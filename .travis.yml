@@ -46,4 +46,5 @@ before_script:
 
 script:
   - android list target
+  - gradle wrapper
   - ./gradlew clean build
